@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rebar Mass Tolerance Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label, select, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Mass Tolerance Calculator</h2>
+    <label for="barSize">Rebar Size</label>
+    <select id="barSize">
+      <option value="0.617">Y10</option>
+      <option value="0.888">Y12</option>
+      <option value="1.578">Y16</option>
+      <option value="2.466">Y20</option>
+      <option value="3.854">Y25</option>
+      <option value="6.313">Y32</option>
+    </select>
+
+    <label for="length">Length (m)</label>
+    <input type="number" id="length" step="0.01" />
+
+    <label for="weight">Weight (kg)</label>
+    <input type="number" id="weight" step="0.01" />
+
+    <button onclick="calculateTolerance()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateTolerance() {
+      const theoretical = parseFloat(document.getElementById("barSize").value);
+      const length = parseFloat(document.getElementById("length").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const tolerancePercent = 4; // ±4% allowed
+
+      if (isNaN(length) || isNaN(weight) || length <= 0) {
+        document.getElementById("result").innerHTML = "Please enter valid length and weight.";
+        return;
+      }
+
+      const actualMass = weight / length;
+      const massTolerance = ((actualMass - theoretical) / theoretical) * 100;
+
+      const lowerLimit = theoretical * (1 - tolerancePercent / 100);
+      const upperLimit = theoretical * (1 + tolerancePercent / 100);
+
+      const verdict = (actualMass >= lowerLimit && actualMass <= upperLimit) ? "✅ PASS" : "❌ FAIL";
+
+      document.getElementById("result").innerHTML = `
+        <strong>Actual Mass/m:</strong> ${actualMass.toFixed(3)} kg/m<br>
+        <strong>Theoretical Mass/m:</strong> ${theoretical.toFixed(3)} kg/m<br>
+        <strong>Mass Tolerance:</strong> ${massTolerance >= 0 ? "+" : ""}${massTolerance.toFixed(2)}%<br>
+        <strong>Allowed Range:</strong> ${lowerLimit.toFixed(3)} – ${upperLimit.toFixed(3)} kg/m<br>
+        <strong>Result:</strong> ${verdict}
+      `;
+    }
+  </script>
+</body>
+</html>
